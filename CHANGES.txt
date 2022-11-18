@@ -1,0 +1,42 @@
+1-October-2019 - (tagged with 1.skeleton)
+    Just a python package, should work with "scipion installp -p /home/you/scipion-em-template/ --devel
+
+3-October-2019 - (tagged with 2.scipion-plugin-skeleton)
+    myplugin/__init__.py added, with its own Plugin instance and the registering call:
+
+    Inspecting the plugin should work:
+
+    scipion python pyworkflow/install/inspect-plugins.py myplugin
+
+    Scipion v2.0 (2019-04-23) Diocletian
+
+    >>>>> python  "pyworkflow/install/inspect-plugins.py" "myplugin"
+    Plugin: myplugin
+    >>> constants:  missing
+    >>> convert:  missing
+    >>> protocols:  missing
+    >>> wizards:  missing
+    >>> viewers:  missing
+    >>> tests:  missing
+
+3 October-2019 - 12:40 - (tagged with 3.basic-hello-world-protocol)
+    protocols.py added with a functional helloworld protocol
+
+3 October-2019 - 13:45 - (tagged with 4.icon-protocols.conf-reference)
+    Icon for the plugin added (icon.png)
+    protocols.conf added so protocol is shown on the left tree
+    reference added
+
+3 October-2019 - 14:22 - (tagged with 5.adding-scalar-parameters)
+    Hello world protocol has 2 parameter:
+        1.- message: to enter the message to print
+        2.- times: to print them message that number ot times.
+
+3 October-2019 - 15:06 - (tagged with 6.generating-output)
+    The Hello world protocol generates a scalar output
+
+3 October-2019 - 15:32 - (tagged with 7.connecting-protocols)
+    Now, Hello world protocol, can receive the output of another protocol
+
+4 October-2019 - 12:22 - (tagged with 8.adding-a-wizard)
+    The wizzard will suggest some common greetings in different lenguages
