@@ -1,6 +1,6 @@
 # **************************************************************************
 # *
-# * Authors:     J.L. Vilas
+# * Authors:     J.L. Vilas && Y.C. Fonseca Reyna
 # *
 # * CNB CSIC
 # *
@@ -23,108 +23,93 @@
 # *  e-mail address 'scipion@cnb.csic.es'
 # *
 # **************************************************************************
-import datetime
 import os
 
 import pwem
-import pyworkflow
-from scipion.install.funcs import VOID_TGZ
+import pyworkflow.utils as pwutils
 
-__version__ = "0.2"
+from .constants import *
+
+__version__ = "3.0.0"
 _logo = "icon.png"
 _references = ['Liu2021']
 
-# TODO: move to constants
-ISONET_VERSION =  '0.1'
-MODEL_ISONET_ACTIVATION_VAR = "ISONET_ENV_ACTIVATION"
-
-TORCH_HOME_VAR = 'TORCH_HOME'
 
 class Plugin(pwem.Plugin):
     _homeVar = ISONET_HOME
-    #_url = 'https://github.com/scipion-em/scipion-em-isonet'
+    _pathVars = [ISONET_HOME]
 
     @classmethod
     def _defineVariables(cls):
-        cls._addVar(ISONET_ENV_ACTIVATION_VAR, cls.getActivationCmd(ISONET_VERSION))
-        cls._defineEmVar(TORCH_HOME_VAR)
-
-    @classmethod
-    def getIsoNetCmd(cls):
-        cmd = cls.getCondaActivationCmd()
-        cmd += cls.getVar(ISONET_ENV_ACTIVATION_VAR) + " && "
-        cmd += "isonet"
-        return cmd
+        cls._defineVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
+        cls._defineEmVar(ISONET_HOME, 'isonet-' + ISONET_VERSION)
 
     @classmethod
     def getEnviron(cls):
-        environ = pyworkflow.utils.Environ(os.environ)
-        torch_home = cls.getVar(TORCH_HOME_VAR)
-
-        # For GPU, we need to add to LD_LIBRARY_PATH the path to Cuda/lib
-        environ.set(TORCH_HOME_VAR, torch_home)
-        '''
-        export PATH=PATH_TO_ISONET_FOLDER/bin:$PATH 
-        export PYTHONPATH=PATH_TO_PARENT_FOLDER_OF_ISONET_FOLDER:$PYTHONPATH 
-        '''
-
-        return environ
+        """ Set up the environment variables needed to launch cryoSparc. """
+        environ = pwutils.Environ(os.environ)
+        environ.update({'PATH': cls.getHome()},
+                       position=pwutils.Environ.BEGIN)
+        cudaLib = cls.getVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
+        environ.addLibrary(cudaLib)
 
     @classmethod
-    def getActivationCmd(cls):
-        return'conda activate isonet-' + ISONET_VERSION
-
-    def defineIsoNetInstallation(version):
-        isonet_commands = []
-        isonet_commands.append(('git clone https://github.com/IsoNet-cryoET/IsoNet'))
-        isonet_commands.append((getCondaInstallation(version), 'env-created.txt'))
-        isonet_commands.append(('cd isonet && git pull && touch ../%s' % installed, installed))
-
-        env.addPackage('isonet', version=version,
-                       commands=isonet_commands,
-                       tar=VOID_TGZ,
-                       default=True)
-
-
-    def getCondaInstallation(version):
-        installationCmd = cls.getCondaActivationCmd()
-        installationCmd += 'conda create -y -n isonet-' + version + ' python=3.9 && '
-        installationCmd += cls.getActivationCmd(version) + ' && '
-        installationCmd += 'cd isonet && python -m pip install -r requirements.txt && '
-        installationCmd += 'touch ../env-created.txt'
-
-        return installationCmd
+    def getIsoNetActivationCmd(cls):
+        return ISONET_ACTIVATION_CMD
 
     @classmethod
-    def getIsonetCmd(cls, program):
-        """ Composes an isonet command for a given program. """
+    def getDependencies(cls):
+        """ Return a list of dependencies. Include conda if
+            activation command was not found. """
+        condaActivationCmd = cls.getCondaActivationCmd()
+        neededProgs = ['wget', 'tar']
+        if not condaActivationCmd:
+            neededProgs.append('conda')
 
-        # Program to run
-        program_path = cls._getProgram("isonet.py")
-
-        # Command to run
-        cmd = program_path
-        cmd += ' '
-        cmd += program
-
-        return cmd
+        return neededProgs
 
     @classmethod
-    def runIsonet(cls, protocol, program, args, cwd=None):
-        """ Run isonet command from a given protocol. """
-        # Get the command
-        cmd = cls.getIsonetCmd(program)
-
-        protocol.runJob(cmd, args, env=cls.getEnviron(), cwd=cwd,
+    def runIsoNet(cls, protocol, program, args, cwd=None, useCpu=False):
+        """ Run IsonNet command from a given protocol. """
+        fullProgram = '%s %s && %s' % (cls.getCondaActivationCmd(),
+                                       cls.getIsoNetActivationCmd(),
+                                       program)
+        protocol.runJob(fullProgram, args, env=cls.getEnviron(), cwd=cwd,
                         numberOfMpi=1)
 
     @classmethod
+    def addIsonetPackage(cls, env):
+        ISONET_INSTALLED = f"isonet_{ISONET_VERSION}_installed"
+        ENV_NAME = getIsoNetEnvName(ISONET_VERSION)
+        cudaVersion = cls.guessCudaVersion(ISONET_CUDA_LIB)
+
+        if cudaVersion.major == 11:
+            extrapkgs = "python=3.10 tensorflow=2.11.0 cudnn=8.1"
+        else:  # assume cuda 10:
+            extrapkgs = "python=3.78 tensorflow=2.3.0 cudnn=7.6"
+
+        installCmd = [cls.getCondaActivationCmd(),
+                      f'conda create -y -n {ENV_NAME} -c conda-forge -c anaconda && {extrapkgs}',
+                      f'conda activate {ENV_NAME} &&']
+
+        # download isoNet
+        isonetPath = cls.getHome('IsoNet-0.2.1')
+        installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/tags/v0.2.1.tar.gz && tar -xf v0.2.1.tar.gz  && ')
+        installCmd.append(f'cd {isonetPath} && pip install -r requirements.txt ')
+
+        installCmd.append(f'&& touch ../{ISONET_INSTALLED}')
+
+        pyem_commands = [(" ".join(installCmd), [ISONET_INSTALLED])]
+
+        envPath = os.environ.get('PATH', "")
+        installEnvVars = {'PATH': envPath} if envPath else None
+        env.addPackage('isonet', version=ISONET_VERSION,
+                       tar='void.tgz',
+                       commands=pyem_commands,
+                       neededProgs=cls.getDependencies(),
+                       default=True,
+                       vars=installEnvVars)
+
+    @classmethod
     def defineBinaries(cls, env):
-
-        # Define isonet installations
-        defineIsonetInstallation(ISONET_VERSION)
-
-        # Models download
-        installationCmd = ""
-        installationCmd += 'export TORCH_HOME=$PWD && '
-        installationCmd += cls.getCondaActivationCmd() + " " +  cls.getActivationCmd(ISONET_VERSION)
+        cls.addIsonetPackage(env)

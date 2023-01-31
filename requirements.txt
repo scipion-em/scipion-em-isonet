@@ -1,12 +1,1 @@
 scipion-em-tomo
-scipion-pyworkflow
-scipion-em
-###### Requirements without Version Specifiers ######
-mrcfile
-scipy
-fire
-tqdm
-PyQt5
-###### Requirements with Version Specifiers ######
-scikit-image==0.17.2
-tensorflow-gpu==2.3.0
