@@ -30,29 +30,24 @@
 Describe your python module here:
 This module will provide the traditional Hello world example
 """
+import os
+
+from pyworkflow.constants import BETA
 from pyworkflow.protocol import Protocol, params, Integer
 from pyworkflow.utils import Message
 from pyworkflow.protocol.params import (PointerParam, BooleanParam, FloatParam,
                                         LEVEL_ADVANCED)
-import os
 
 
-TOMOGRAMFOLDER = 'tomo_'
-
-class ProtIsonetProtocol(Protocol):
+class ProtIsoNetTomoReconstruction(Protocol):
     """
-    This protocol will print hello world in the console
-    IMPORTANT: Classes names should be unique, better prefix them
+     Isotropic Reconstruction of Electron Tomograms with Deep Learning
     """
-    _label = 'isonet'
+    _label = 'isonet tomo reconstruction'
+    _devStatus = BETA
 
     # -------------------------- DEFINE param functions ----------------------
     def _defineParams(self, form):
-        """ Define the input parameters that will be used.
-        Params:
-            form: this is the form to be populated with sections and params.
-        """
-
         form.addSection(label='Input')
 
         form.addParam('inputTomograms', PointerParam, pointerClass='SetOfTomograms',
@@ -90,6 +85,18 @@ class ProtIsonetProtocol(Protocol):
         line.addParam('stepSize', FloatParam, allowsNull=True, default=0.5,
                       expertLevel=LEVEL_ADVANCED, label='Step')
 
+        form.addSection("Computing")
+        form.addParam('batchSize', params.IntParam, default=4,
+                      label='Batch Size',
+                      help='This value allows to group several items to be processed inside the same protocol step.'
+                           'Specify a smaller batch_size or use more(powerful) GPUs. '
+                           'The default batch_size is 4 if you use one GPU, '
+                           'otherwise the default batch_size is 2 times the number of GPU. '
+                           'Please note the batch_size should be divisiable by number of GPUs. '
+                           'For example, if you have one GPU and get OOM error, please reduce '
+                           'the batch_size to 1 or 2; If you use 4 GPUs and get OOM error, '
+                           'please reduce the batch_size to 4')
+
         form.addParallelSection(threads=4, mpi=0)
 
     # --------------------------- STEPS functions ------------------------------
@@ -106,12 +113,7 @@ class ProtIsonetProtocol(Protocol):
         self._insertFunctionStep('createOutputStep')
 
     def prepareProjectStep(self, tomId):
-        ts = self.inputTomograms.get()[tomId]
-        tsId = ts.getTsId()
-        tomoPath = self._getExtraPath(TOMOGRAMFOLDER + tsId)
-        os.mkdir(tomoPath)
-
-        #self.runIsonet()
+        pass
 
     def ctfDeconvolveStep(self):
         pass
@@ -126,27 +128,14 @@ class ProtIsonetProtocol(Protocol):
         pass
 
     def createOutputStep(self):
-        # register how many times the message has been printed
-        # Now count will be an accumulated value
-        timesPrinted = Integer(self.times.get() + self.previousCount.get())
-        self._defineOutputs(count=timesPrinted)
+       pass
 
     # --------------------------- INFO functions -----------------------------------
     def _summary(self):
         """ Summarize what the protocol has done"""
         summary = []
-
-        if self.isFinished():
-            summary.append("This protocol has printed *%s* %i times." % (self.message, self.times))
         return summary
 
     def _methods(self):
         methods = []
-
-        if self.isFinished():
-            methods.append("%s has been printed in this run %i times." % (self.message, self.times))
-            if self.previousCount.hasPointer():
-                methods.append("Accumulated count from previous runs were %i."
-                               " In total, %s messages has been printed."
-                               % (self.previousCount, self.count))
         return methods

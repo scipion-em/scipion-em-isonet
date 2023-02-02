@@ -84,17 +84,21 @@ class Plugin(pwem.Plugin):
         cudaVersion = cls.guessCudaVersion(ISONET_CUDA_LIB)
 
         if cudaVersion.major == 11:
-            extrapkgs = "python=3.10 tensorflow=2.11.0 cudnn=8.1"
+            python = 'python=3.8'
+            extrapkgs = "tensorflow=2.8.0 cudnn=8.1"
         else:  # assume cuda 10:
-            extrapkgs = "python=3.78 tensorflow=2.3.0 cudnn=7.6"
+            python = 'python=3.8'
+            extrapkgs = "tensorflow=2.3.0 cudnn=7.6"
 
         installCmd = [cls.getCondaActivationCmd(),
-                      f'conda create -y -n {ENV_NAME} -c conda-forge -c anaconda && {extrapkgs}',
+                      f'conda create -y -n {ENV_NAME} {python} -c conda-forge -c anaconda && {extrapkgs}',
                       f'conda activate {ENV_NAME} &&']
-
+        installCmd.append('conda install -y scipy pyqt &&')
         # download isoNet
-        isonetPath = cls.getHome('IsoNet-0.2.1')
+        isonetFolderName = 'IsoNet-%s' %ISONET_VERSION
         installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/tags/v0.2.1.tar.gz && tar -xf v0.2.1.tar.gz  && ')
+        installCmd.append(f'mv {isonetFolderName} IsoNet &&')
+        isonetPath = cls.getHome('IsoNet')
         installCmd.append(f'cd {isonetPath} && pip install -r requirements.txt ')
 
         installCmd.append(f'&& touch ../{ISONET_INSTALLED}')
