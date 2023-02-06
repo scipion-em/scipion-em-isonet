@@ -12,6 +12,10 @@ tomograms as input. Observing at about 30A resolutions, the IsoNet generated tom
 
 You will need to use `3.0.0 <https://scipion-em.github.io/docs/release-3.0.0/docs/scipion-modes/how-to-install.html>`_ version of Scipion to run these protocols.
 
+
+Protocols
+==========
+
 * **Isotropic Reconstruction**: Isotropic Reconstruction of Electron Tomograms with Deep Learning
 
 **Latest plugin version**
