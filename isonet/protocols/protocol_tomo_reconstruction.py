@@ -33,6 +33,7 @@ import emtable
 from pwem.protocols import EMProtocol
 from pyworkflow.constants import BETA
 from pyworkflow.protocol import params
+from pyworkflow.utils import removeBaseExt
 
 from tomo.objects import Tomogram
 from tomo.protocols import ProtTomoBase
@@ -308,7 +309,8 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                 tomoRow['rlnIndex'] = row.get('rlnIndex')
                 tomoRow['rlnMicrographName'] = row.get('rlnMicrographName')
                 tomoRow['rlnPixelSize'] = row.get('rlnPixelSize')
-                tomoRow['rlnDefocus'] = defocusValues[index]
+                tomoName = removeBaseExt(tomoRow['rlnMicrographName'])
+                tomoRow['rlnDefocus'] = defocusValues[tomoName]
                 tomoRow['rlnNumberSubtomo'] = row.get('rlnNumberSubtomo')
                 tomoRow['rlnMaskBoundary'] = row.get('rlnMaskBoundary')
                 partsWriter.writeRowValues(tomoRow.values())
@@ -338,7 +340,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         Plugin.runIsoNet(self, Plugin.getProgram(PROGRAM_CTF_DECONV), args=args)
 
     def getDefocusValues(self):
-        defocusValues = []
+        defocusValues = dict()
         setOfCtfTomoSeries = self.inputSetOfCtfTomoSeries.get()
         half = 0
         for tiltSerie in setOfCtfTomoSeries.getSetOfTiltSeries().getFirstItem():
@@ -346,8 +348,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
             if tiltSerie.getTiltAngle() == 0:
                 break
         for ctfTomoSerie in setOfCtfTomoSeries.iterItems():
-                defocusValues.append(ctfTomoSerie[half].getDefocusU())
-
+                defocusValues[ctfTomoSerie.getTsId()] = ctfTomoSerie[half].getDefocusU()
         return defocusValues
 
     def generateMaskStep(self):
