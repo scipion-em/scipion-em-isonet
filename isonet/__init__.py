@@ -48,10 +48,13 @@ class Plugin(pwem.Plugin):
     def getEnviron(cls):
         """ Set up the environment variables needed to launch cryoSparc. """
         environ = pwutils.Environ(os.environ)
-        environ.update({'PATH': cls.getHome()},
-                       position=pwutils.Environ.BEGIN)
+        # Add required disperse path to PATH and pyto path to PYTHONPATH
+        environ.update({'PATH': os.path.join(cls.getHome(), 'IsoNet', 'bin'),
+                        'PYTHONPATH':  cls.getHome()
+                        })
         cudaLib = cls.getVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
         environ.addLibrary(cudaLib)
+        return environ
 
     @classmethod
     def getIsoNetActivationCmd(cls):
@@ -62,7 +65,7 @@ class Plugin(pwem.Plugin):
         """ Return a list of dependencies. Include conda if
             activation command was not found. """
         condaActivationCmd = cls.getCondaActivationCmd()
-        neededProgs = ['wget', 'tar']
+        neededProgs = ['wget', 'tar', 'unzip']
         if not condaActivationCmd:
             neededProgs.append('conda')
 
@@ -74,8 +77,15 @@ class Plugin(pwem.Plugin):
         fullProgram = '%s %s && %s' % (cls.getCondaActivationCmd(),
                                        cls.getIsoNetActivationCmd(),
                                        program)
+
         protocol.runJob(fullProgram, args, env=cls.getEnviron(), cwd=cwd,
                         numberOfMpi=1)
+
+    @classmethod
+    def getProgram(cls, program):
+        programPath = os.path.join(cls.getHome(), 'IsoNet', 'bin',
+                                   ISONET_SCRIPT) + ' ' + program
+        return programPath
 
     @classmethod
     def addIsonetPackage(cls, env):
@@ -85,18 +95,18 @@ class Plugin(pwem.Plugin):
 
         if cudaVersion.major == 11:
             python = 'python=3.8'
-            extrapkgs = "tensorflow=2.8.0 cudnn=8.1"
+            extrapkgs = "tensorflow=2.9.1 cudnn=8.4.1"
         else:  # assume cuda 10:
             python = 'python=3.8'
             extrapkgs = "tensorflow=2.3.0 cudnn=7.6"
 
         installCmd = [cls.getCondaActivationCmd(),
-                      f'conda create -y -n {ENV_NAME} {python} -c conda-forge -c anaconda && {extrapkgs}',
+                      f'conda create -y -n {ENV_NAME} {python} {extrapkgs} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
-        installCmd.append('conda install -y scipy pyqt &&')
+        installCmd.append(f'conda install -y scipy pyqt &&')
         # download isoNet
-        isonetFolderName = 'IsoNet-%s' %ISONET_VERSION
-        installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/tags/v0.2.1.tar.gz && tar -xf v0.2.1.tar.gz  && ')
+        isonetFolderName = 'IsoNet-master'
+        installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/heads/master.zip && unzip master.zip  && ')
         installCmd.append(f'mv {isonetFolderName} IsoNet &&')
         isonetPath = cls.getHome('IsoNet')
         installCmd.append(f'cd {isonetPath} && pip install -r requirements.txt ')

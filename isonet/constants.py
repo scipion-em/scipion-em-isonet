@@ -29,6 +29,13 @@
 def getIsoNetEnvName(version):
     return 'isonet-%s' % version
 
+
+def getTrinedModelName(iter):
+    model = 'model_iter%s.h5' % iter
+    if iter < 10:
+        model = 'model_iter0%s.h5' % iter
+    return model
+
 # IsoNet environment variables
 ISONET_VERSION = '0.2.1'  # This is our made up version
 ISONET_ACTIVATION_CMD = 'conda activate %s' % (getIsoNetEnvName(ISONET_VERSION))
@@ -37,4 +44,21 @@ ISONET_CUDA_LIB = 'ISONET_CUDA_LIB'
 ISONET_HOME = 'ISONET_HOME'
 
 # IsoNet programs
-ISONET_PROGRAM = 'isonet.py'
+ISONET_SCRIPT = 'isonet.py'
+PROGRAM_PREPARE_STAR = 'prepare_star'
+PROGRAM_CTF_DECONV = 'deconv'
+PROGRAM_GENERATE_MASK = 'make_mask'
+PROGRAM_EXTRACT_SUBTOMOGRAMS = 'extract'
+PROGRAM_REFINE = 'refine'
+PROGRAM_PREDICT = 'predict'
+
+TOMOGRAMFOLDER = 'tomograms'
+DECONVFOLDER = 'deconv'
+SUBTOMOGRAMFOLDER = 'subtomograms'
+RESULTFOLDER = 'results'
+MASKFOLDER = 'mask'
+PREDICTEDFOLDER = 'predicted'
+
+OUTPUT_TOMO_STAR_FILE = 'tomograms.star'
+OUTPUT_TOMO_DECONV_STAR_FILE = 'tomograms_new.star'
+OUTPUT_SUBTOMO_STAR_FILE = 'subtomograms.star'
