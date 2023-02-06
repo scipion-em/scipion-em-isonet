@@ -1,95 +1,70 @@
-=======================
-Scipion isonet plugin
-=======================
+================
+IsoNet plugin
+================
 
-This is a template plugin for **scipion**
+This plugin allows to use IsoNet programs within the Scipion framework
 
+`IsoNet <https://github.com/IsoNet-cryoET/IsoNet/>`_ stand for ISOtropic reconstruction of Electron Tomography.
+It train deep neural networks to reconstruct meaningful contents in the missing wedge for electron tomography
+increase signal-to-noise ratio using the information learned from the original tomogram. The software requires
+tomograms as input. Observing at about 30A resolutions, the IsoNet generated tomograms are largely isotropic.
+
+
+You will need to use `3.0.0 <https://scipion-em.github.io/docs/release-3.0.0/docs/scipion-modes/how-to-install.html>`_ version of Scipion to run these protocols.
+
+* **Isotropic Reconstruction**: Isotropic Reconstruction of Electron Tomograms with Deep Learning
+
+**Latest plugin version**
 ==========================
-Steps to adapt this plugin
-==========================
+**v3.0.0**
+-----------
+* **new**     :  First plugin version
 
-IMPORTANT: To simplify the instructions all the commands would refer to an hypothetical new plugin name called "coolem".
-Note that you must replace "isonet" by your plugin name.
 
-**Clone it:**
+**Installing the plugin**
+=========================
 
-.. code-block::
+In order to install the plugin follow these instructions:
 
-    git clone git@github.com:scipion-em/scipion-em-isonet.git scipion-em-coolem
-
-**Reset the git repo**
+1. **Install the plugin**
 
 .. code-block::
 
-    cd scipion-em-coolem
-    rm -rf .git
-    git init
+     scipion installp -p scipion-em-isonet
 
-**Empty CHANGES.txt**
+or through the **plugin manager** by launching Scipion and following **Configuration** >> **Plugins**
 
-.. code-block::
+**To install in development mode**
 
-    rm CHANGES.txt && touch CHANGES.txt
-
-**Rename "myplugin" to coolem (IDE might help here)**
+- Clone or download the plugin repository
 
 .. code-block::
 
-    mv myplugin coolem
+          git clone https://github.com/scipion-em/scipion-em-isonet.git
 
-**Tidy up imports**
-
-Tip 1: IDE refactrization should rename at once the classes and the imports
-Tip 2: Search in your IDE for "myplugin" and replace by *"coolem"*
-
-coolem/protocols/protocol_hello_world.py:
- class MyPluginPrefixHelloWorld --> class CoolemPrefixHelloWorld
-
-coolem/protocol/__init__.py:
- from .protocol_hello_world import MyPluginPrefixHelloWorld --> from .protocol_hello_world import CoolemPrefixHelloWorld
-
-coolem/wizards/wizard_hello_world.py:
- _targets = [(MyPluginPrefixHelloWorld, ['message'])]  -->     _targets = [(CoolemPrefixHelloWorld, ['message'])]
- class MyPluginPrefixHelloWorldWizard --> class CoolemPrefixHelloWorldWizard
-
-coolem/wizards/__init__.py:
- from .wizard_hello_world import MyPluginPrefixHelloWorldWizard  --> from .wizard_hello_world import CoolemPrefixHelloWorldWizard
-
-protcocols.conf: rename MyPluginPrefixHelloWorld --> CoolemPrefixHelloWorld
-
-
-setup.py:
- update almost all values: name, description, ...
-
- be sure to update package data
-.. code-block::
-
-    package_data={  # Optional
-       'coolem': ['icon.png', 'protocols.conf'],
-    }
-
-  and the entry point
-.. code-block::
-
-    entry_points={
-        'pyworkflow.plugin': 'coolem = coolem'
-    }
-
-**Install the plugin in devel mode**
+- Install the plugin in developer mode.
 
 .. code-block::
 
-    scipion3 installp -p /home/me/scipion-em-coolem --devel
+  scipion installp -p local/path/to/scipion-em-isonet --devel
 
-TIP: If installation fails, you can access pip options like:
 
-.. code-block::
+===============
+Buildbot status
+===============
 
-    scipion3 python -m pip ... (list, install, uninstall)
+Status devel version:
 
-**Customize it**
-    replace icon.png with your logo.
-    update the bibtex.py with your reference.
+.. image:: http://scipion-test.cnb.csic.es:9980/badges/isonet_devel.svg
 
-**Get rid of this content and keep the readme informative**
+Status production version:
+
+.. image:: http://scipion-test.cnb.csic.es:9980/badges/isonet_prod.svg
+
+
+==================
+IsoNet References
+==================
+The publication associated with IsoNet can be found `here <https://www.biorxiv.org/content/10.1101/2021.07.17.452128v1>`_:
+
 
