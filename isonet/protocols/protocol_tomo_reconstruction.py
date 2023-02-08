@@ -416,14 +416,14 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
 
         isonet.py refine subtomo_star [--iterations] [--gpuID] [--preprocessing_ncpus] [--batch_size] [--steps_per_epoch] [--noise_start_iter] [--noise_level]...
         """
-        args = '%s --iterations %d --epochs %d --gpuID %s --preprocessing_ncpus %d --noise_level %s ' \
+        args = '%s --iterations %d --epochs %d --gpuID %d --preprocessing_ncpus %d --noise_level %s ' \
                '--noise_start_iter %s --drop_out %f --learning_rate %f ' \
                '--convs_per_depth %d --unet_depth %d --filter_base %d --batch_normalization %d ' \
                '--pool %d --normalize_percentile %d --result_dir %s ' \
                % (self.subtomoStarFile,
                   self.iterations.get(),
                   self.epochs.get(),
-                  self.getGpuList()[0],
+                  int(self.getGpuList()[0]),
                   self.numberOfMpi.get(),
                   self.noise_level.get(),
                   self.noise_start_iter.get(),
@@ -462,12 +462,14 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
          Predict tomograms using trained model
         isonet.py predict star_file model [--gpuID] [--output_dir] [--cube_size] [--crop_size] [--batch_size] [--tomo_idx]
         """
+        if not os.path.exists(self.predictFolder):
+            os.mkdir(self.predictFolder)
         modelName = getTrinedModelName(self.iterations.get())
         modelPath = os.path.join(self.resultsFolder, modelName)
-        args = '%s %s --gpuID %s --batch_size %d --output_dir %s ' \
+        args = '%s %s --gpuID %d --batch_size %d --output_dir %s ' \
                % (self.tomoStarFileName,
                   modelPath,
-                  self.getGpuList()[0],
+                  int(self.getGpuList()[0]),
                   self.batch_size.get(),
                   self.predictFolder)
 

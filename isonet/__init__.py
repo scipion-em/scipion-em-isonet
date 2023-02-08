@@ -29,6 +29,7 @@ import pwem
 import pyworkflow.utils as pwutils
 
 from .constants import *
+from .utils import *
 
 __version__ = "3.0.0"
 _logo = "icon.png"
@@ -92,18 +93,18 @@ class Plugin(pwem.Plugin):
         ISONET_INSTALLED = f"isonet_{ISONET_VERSION}_installed"
         ENV_NAME = getIsoNetEnvName(ISONET_VERSION)
         cudaVersion = cls.guessCudaVersion(ISONET_CUDA_LIB)
+        cudalib = utils.CudaLibs().getCudaLibraries(cudaVersion)
 
-        if cudaVersion.major == 11:
-            python = 'python=3.8'
-            extrapkgs = "tensorflow=2.9.1 cudnn=8.4.1"
-        else:  # assume cuda 10:
-            python = 'python=3.8'
-            extrapkgs = "tensorflow=2.3.0 cudnn=7.6"
+        if cudalib[0]:
+            extrapkgs = cudalib[1]
+            tensorflow = extrapkgs[1]
+            extrapkgs = extrapkgs[0] + ' ' + extrapkgs[2]
 
         installCmd = [cls.getCondaActivationCmd(),
-                      f'conda create -y -n {ENV_NAME} {python} {extrapkgs} -c conda-forge -c anaconda && ',
+                      f'conda create -y -n {ENV_NAME} {extrapkgs} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
         installCmd.append(f'conda install -y scipy pyqt &&')
+        installCmd.append(f'pip install {tensorflow} &&')
         # download isoNet
         isonetFolderName = 'IsoNet-master'
         installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/heads/master.zip && unzip master.zip  && ')
