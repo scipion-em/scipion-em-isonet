@@ -101,7 +101,7 @@ class Plugin(pwem.Plugin):
             tensorflow = extrapkgs[1]
             extrapkgs = extrapkgs[0] + ' ' + extrapkgs[2]
         else:
-            raise Exception(cudalib[1])
+            print(cudalib[1])
 
         installCmd = [cls.getCondaActivationCmd(),
                       f'conda create -y -n {ENV_NAME} {extrapkgs} -c conda-forge -c anaconda && ',
