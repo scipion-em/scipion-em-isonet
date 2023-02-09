@@ -107,7 +107,7 @@ class Plugin(pwem.Plugin):
                       f'conda create -y -n {ENV_NAME} {extrapkgs} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
         installCmd.append(f'conda install -y scipy pyqt &&')
-        installCmd.append(f'pip install {tensorflow} &&')
+        installCmd.append(f'pip install {tensorflow} numpy==1.19.5 &&')
         # download isoNet
         isonetFolderName = 'IsoNet-master'
         installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/heads/master.zip && unzip master.zip  && ')
