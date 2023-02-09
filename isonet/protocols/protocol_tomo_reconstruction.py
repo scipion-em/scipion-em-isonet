@@ -63,6 +63,17 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                       help='Select the CTF estimation for the set '
                            'of tilt-series.')
 
+        form.addParam('voltage', params.FloatParam, default=300.0,
+                      condition='inputSetOfCtfTomoSeries is not None',
+                      label="Acceleration voltage",
+                      help='Acceleration voltage in kV')
+
+        form.addParam('cs', params.FloatParam, default=2.7,
+                      condition='inputSetOfCtfTomoSeries is not None',
+                      label="Spherical aberration",
+                      help='Spherical aberration in mm.')
+
+
         form.addParam('snrfalloff', params.FloatParam, default=1.0,
                       condition='inputSetOfCtfTomoSeries is not None',
                       label="SNR fall rate",
@@ -318,9 +329,11 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         mdFile.write(self.tomoStarFileName)
         os.system(f'mv {newStarFile} {self.tomoStarFileName}')
 
-        args = '%s --deconv_folder %s --snrfalloff %f --deconvstrength %d --highpassnyquist %f --ncpu %d ' \
+        args = '%s --deconv_folder %s --voltage %f --cs %f --snrfalloff %f --deconvstrength %d --highpassnyquist %f --ncpu %d ' \
                % (self.tomoStarFileName,
                   self.deconvFolder,
+                  self.voltage.get(),
+                  self.cs.get(),
                   self.snrfalloff.get(),
                   self.snrfalloff.get(),
                   self.highpassnyquist.get(),

@@ -27,6 +27,8 @@
 
 import os
 
+import isonet.protocols
+
 from pyworkflow.tests import setupTestProject, BaseTest, DataSet
 from pwem.emlib.image import ImageHandler
 import tomo.protocols
@@ -82,20 +84,27 @@ class TestIsoNetCtfBase(BaseTest):
         return cls.protCTFEstimation
 
     @classmethod
-    def _runComputeCtfArray(cls, inputSetOfTiltSeries, inputSetOfCtfTomoSeries, tomoThickness, tomoShift,
-                            defocusStep, correctionType, correctAstigmatism):
-        cls.protCTFReconstruction = cls.newProtocol(ProtNovaCtfTomoDefocus,
-                                                    inputSetOfTiltSeries=inputSetOfTiltSeries,
-                                                    inputSetOfCtfTomoSeries=inputSetOfCtfTomoSeries,
-                                                    tomoThickness=tomoThickness,
-                                                    tomoShift=tomoShift,
-                                                    defocusStep=defocusStep,
-                                                    correctionType=correctionType,
-                                                    correctAstigmatism=correctAstigmatism)
+    def _runImodCTFReconstruction(cls, inputSoTS):
+        cls.protImodReconstruction = cls.newProtocol(imod.protocols.ProtImodTomoReconstruction,
+            inputSetOfTiltSeries=inputSoTS,
+            tomoThickness=200
+           )
+        cls.launchProtocol(cls.protImodReconstruction)
 
-        cls.launchProtocol(cls.protCTFReconstruction)
+        return cls.protImodReconstruction
 
-        return cls.protCTFReconstruction
+    @classmethod
+    def _runIsoNetReconstruction(cls, inputSetOfTomograms, inputSetOfCtfEtimation, label):
+        cls.protIsoNetReconstruction = cls.newProtocol(
+            isonet.protocols.ProtIsoNetTomoReconstruction,
+            inputTomograms=inputSetOfTomograms,
+            inputSetOfCtfTomoSeries=inputSetOfCtfEtimation,
+            iterations=1
+            )
+        cls.protIsoNetReconstruction.setObjLabel(label)
+        cls.launchProtocol(cls.protIsoNetReconstruction)
+
+        return cls.protIsoNetReconstruction
 
 
 class TestIsoNetReconstructionWorkflow(TestIsoNetCtfBase):
@@ -126,6 +135,18 @@ class TestIsoNetReconstructionWorkflow(TestIsoNetCtfBase):
             angleRange=20,
             searchAstigmatism=0)
 
+        cls.protImodReconstruction = cls._runImodCTFReconstruction(cls.protImportTS.outputTiltSeries)
+
+
 
     def test_tomoReconstructionOutput(self):
-       pass
+        self.protIsoNetReconstruction = self._runIsoNetReconstruction(self.protImodReconstruction.Tomograms,
+                                                                    self.protCTFEstimation.CTFTomoSeries,
+                                                                    'tomo reconstruction with ctf')
+        self.assertIsNotNone(self.protIsoNetReconstruction.outputTomograms)
+        self.assertTrue(self.protIsoNetReconstruction.outputTomograms.getSize() == 1)
+
+        self.protIsoNetReconstructionWithCTF = self._runIsoNetReconstruction(self.protImodReconstruction.Tomograms,
+                                                                    None, 'tomo reconstruction without ctf')
+        self.assertIsNotNone(self.protIsoNetReconstructionWithCTF.outputTomograms)
+        self.assertTrue(self.protIsoNetReconstructionWithCTF.outputTomograms.getSize() == 1)
