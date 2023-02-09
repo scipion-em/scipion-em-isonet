@@ -28,18 +28,18 @@ class CudaLibs:
         self.cudaTable['11.0'] = [('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=7.3.1')]
 
         self.cudaTable['11.2'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1')
+                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1')]
 
         self.cudaTable['11.4'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1')
+                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1')]
 
         self.cudaTable['11.6'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.4'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1')
+                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1'),
                                   ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1')]
 
     def runShell(self, cmd, allow_non_zero=False, stderr=None):
