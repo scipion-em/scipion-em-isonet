@@ -166,7 +166,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         form.addParam('epochs', params.IntParam, default=10,
                       label='Number of epoch',
                       help='Number of epoch for each iteraction')
-        form.addParam('batch_size', params.IntParam, default=None,
+        form.addParam('batch_size', params.IntParam, default=1,
                        label='Batch size',
                        allowsNull=True,
                        help='Size of the minibatch.If None, batch_size will be '
