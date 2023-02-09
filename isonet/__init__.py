@@ -53,7 +53,7 @@ class Plugin(pwem.Plugin):
         # Add required disperse path to PATH and pyto path to PYTHONPATH
         environ.update({'PATH': os.path.join(cls.getHome(), 'IsoNet', 'bin'),
                         'PYTHONPATH':  cls.getHome()
-                        })
+                        },position=pwutils.Environ.END)
         cudaLib = cls.getVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
         environ.addLibrary(cudaLib)
         return environ
