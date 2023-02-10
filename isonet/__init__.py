@@ -99,8 +99,8 @@ class Plugin(pwem.Plugin):
         if cudalib[0]:
             extrapkgs = cudalib[1]
             tensorflow = extrapkgs[1]
-            extrapkgs = extrapkgs[0] + ' ' + extrapkgs[2]
             numpy_version = extrapkgs[4]
+            extrapkgs = extrapkgs[0] + ' ' + extrapkgs[2]
         else:
             print(cudalib[1])
 
