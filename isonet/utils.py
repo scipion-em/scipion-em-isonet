@@ -18,10 +18,10 @@ class CudaLibs:
         # FIXME We need to specify the correct combinations in several case
         self.cudaTable['10.0'] = [('python=3.8', 'tensorflow==2.0.0', 'cudnn=7.4', 'gcc=7.3.1', 'numpy==1.18')]
 
-        self.cudaTable['10.1'] = [('python=3.8', 'tensorflow==2.3.0', 'cudnn=7.6', 'gcc=7.3.1', 'numpy==1.18'),
-                                  ('python=3.8', 'tensorflow==2.3.0', 'cudnn=7.6', 'gcc=8.3.1', 'numpy==1.18'),
-                                  ('python=3.8', 'tensorflow==2.3.0', 'cudnn=7.6', 'gcc=9.3.1', 'numpy==1.18'),
-                                  ('python=3.8', 'tensorflow==2.3.0', 'cudnn=7.6', 'gcc=10.3.1', 'numpy==1.18')]
+        self.cudaTable['10.1'] = [('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=7.3.1', 'numpy==1.19.5'),
+                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=8.3.1', 'numpy==1.19.5'),
+                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=9.3.1', 'numpy==1.19.5'),
+                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=10.3.1', 'numpy==1.19.5')]
 
         self.cudaTable['10.2'] = self.cudaTable['10.1']
 
