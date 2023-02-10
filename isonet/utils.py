@@ -16,31 +16,13 @@ class CudaLibs:
 
     def fillCudaTable(self):
         # FIXME We need to specify the correct combinations in several case
-        self.cudaTable['10.0'] = [('python=3.8', 'tensorflow==2.0.0', 'cudnn=7.4', 'gcc=7.3.1', 'numpy==1.18')]
-
-        self.cudaTable['10.1'] = [('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=7.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=8.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=9.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=10.3.1', 'numpy==1.19.5')]
-
-        self.cudaTable['10.2'] = self.cudaTable['10.1']
-
-        self.cudaTable['11.0'] = [('python=3.8', 'tensorflow==2.4.0', 'cudnn=8.0', 'gcc=7.3.1', 'numpy==1.19.5')]
-
-        self.cudaTable['11.2'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1', 'numpy==1.19.5')]
-
-        self.cudaTable['11.4'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1', 'numpy==1.19.5')]
-
-        self.cudaTable['11.6'] = [('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=8.4', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=9.3.1', 'numpy==1.19.5'),
-                                  ('python=3.8', 'tensorflow==2.5.0', 'cudnn=8.1', 'gcc=10.3.1', 'numpy==1.19.5')]
+        self.cudaTable['10.0'] = [('tensorflow==2.4.0', 'cudnn=8.0', 'gcc=7.3.1')]
+        self.cudaTable['10.1'] = self.cudaTable['10.0']
+        self.cudaTable['10.2'] = self.cudaTable['10.0']
+        self.cudaTable['11.0'] = self.cudaTable['10.0']
+        self.cudaTable['11.2'] = [('tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1')]
+        self.cudaTable['11.4'] = self.cudaTable['11.2']
+        self.cudaTable['11.6'] = self.cudaTable['11.2']
 
     def runShell(self, cmd, allow_non_zero=False, stderr=None):
         if stderr is None:
@@ -67,16 +49,17 @@ class CudaLibs:
         matches = self.cudaTable[str(cudaVersion)]
         if len(matches):
             gccVersion = self.getGccCcompiler()
-            for match in matches:
-                gccMatch = match[3].split('=')[1]
-                if parse_version(gccMatch).major ==  parse_version(gccVersion).major:
-                    return True, match
+            if gccVersion is not None:
+                for match in matches:
+                    gccMatch = match[2].split('=')[1]
+                    if parse_version(gccMatch).major <= parse_version(gccVersion).major:
+                        return True, match
             gccVersions=""
             for match in matches:
-                gccVersions += match[3] + " "
+                gccVersions += match[2] + " "
 
             return False, "For cuda %s you need to install the followings gcc " \
                           "versions: %s" % (str(cudaVersion), gccVersions)
         else:
             return False, "There are no available versions of tensorflow " \
-                          "for the cuda-%s" % strVersion
+                          "for the cuda-%s" % str(cudaVersion)
