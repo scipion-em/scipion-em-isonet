@@ -16,7 +16,7 @@ class CudaLibs:
 
     def fillCudaTable(self):
         # FIXME We need to specify the correct combinations in several case
-        self.cudaTable['10.0'] = [('tensorflow==2.3.0', 'cudnn=7.6', 'gcc=7.3.1', 'numpy==1.19.2', 'python=3.7')]
+        self.cudaTable['10.0'] = [('tensorflow==2.3.0', 'cudnn=7.6', 'gcc=7.3.1', 'numpy==1.18', 'python=3.7')]
         self.cudaTable['10.1'] = self.cudaTable['10.0']
         self.cudaTable['10.2'] = self.cudaTable['10.0']
         self.cudaTable['11.0'] = self.cudaTable['10.0']
