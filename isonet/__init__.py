@@ -99,6 +99,7 @@ class Plugin(pwem.Plugin):
         if cudalib[0]:
             extrapkgs = cudalib[1]
             tensorflow = extrapkgs[0]
+            pythonVersion = extrapkgs[4]
             numpyVersion = extrapkgs[3]
             extrapkgs = extrapkgs[1]
 
@@ -106,7 +107,7 @@ class Plugin(pwem.Plugin):
             print(cudalib[1])
 
         installCmd = [cls.getCondaActivationCmd(),
-                      f'conda create -y -n {ENV_NAME} python=3.8 {extrapkgs} -c conda-forge -c anaconda && ',
+                      f'conda create -y -n {ENV_NAME} {pythonVersion} {extrapkgs} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
         installCmd.append(f'conda install -y scipy pyqt &&')
         installCmd.append(f'pip install {tensorflow} {numpyVersion} &&')
