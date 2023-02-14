@@ -99,7 +99,9 @@ class Plugin(pwem.Plugin):
         if cudalib[0]:
             extrapkgs = cudalib[1]
             tensorflow = extrapkgs[0]
+            numpyVersion = extrapkgs[3]
             extrapkgs = extrapkgs[1]
+
         else:
             print(cudalib[1])
 
@@ -107,7 +109,7 @@ class Plugin(pwem.Plugin):
                       f'conda create -y -n {ENV_NAME} python=3.8 {extrapkgs} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
         installCmd.append(f'conda install -y scipy pyqt &&')
-        installCmd.append(f'pip install {tensorflow} numpy==1.19.5 &&')
+        installCmd.append(f'pip install {tensorflow} {numpyVersion} &&')
         # download isoNet
         isonetFolderName = 'IsoNet-master'
         installCmd.append(f'wget https://github.com/IsoNet-cryoET/IsoNet/archive/refs/heads/master.zip && unzip master.zip  && ')
