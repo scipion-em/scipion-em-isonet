@@ -20,7 +20,7 @@ class CudaLibs:
         self.cudaTable['10.1'] = self.cudaTable['10.0']
         self.cudaTable['10.2'] = self.cudaTable['10.0']
         self.cudaTable['11.0'] = self.cudaTable['10.0']
-        self.cudaTable['11.2'] = [('tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5', 'python=3.8')]
+        self.cudaTable['11.2'] = [('tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5', 'python=3.7')]
         self.cudaTable['11.4'] = self.cudaTable['11.2']
         self.cudaTable['11.6'] = self.cudaTable['11.2']
 
