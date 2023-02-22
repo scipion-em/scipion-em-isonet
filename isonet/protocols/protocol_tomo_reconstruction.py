@@ -329,10 +329,9 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         mdFile.write(self.tomoStarFileName)
         os.system(f'mv {newStarFile} {self.tomoStarFileName}')
 
-        args = '%s --deconv_folder %s --voltage %f --cs %f --snrfalloff %f --deconvstrength %d --highpassnyquist %f --ncpu %d ' \
+        args = '%s --deconv_folder %s --cs %f --snrfalloff %f --deconvstrength %d --highpassnyquist %f --ncpu %d ' \
                % (self.tomoStarFileName,
                   self.deconvFolder,
-                  self.voltage.get(),
                   self.cs.get(),
                   self.snrfalloff.get(),
                   self.snrfalloff.get(),
