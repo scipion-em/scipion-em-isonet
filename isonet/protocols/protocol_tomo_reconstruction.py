@@ -333,7 +333,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                % (self.tomoStarFileName,
                   self.deconvFolder,
                   self.snrfalloff.get(),
-                  self.snrfalloff.get(),
+                  self.deconvstrength.get(),
                   self.highpassnyquist.get(),
                   self.numberOfMpi.get())
 
