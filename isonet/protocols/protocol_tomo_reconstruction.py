@@ -475,7 +475,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         """
         if not os.path.exists(self.predictFolder):
             os.mkdir(self.predictFolder)
-        modelName = getTrinedModelName(self.iterations.get())
+        modelName = getTrinedModelName(self.epochs.get())
         modelPath = os.path.join(self.resultsFolder, modelName)
         args = '%s %s --gpuID %d --batch_size %d --output_dir %s ' \
                % (self.tomoStarFileName,
