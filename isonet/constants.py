@@ -52,6 +52,8 @@ PROGRAM_EXTRACT_SUBTOMOGRAMS = 'extract'
 PROGRAM_REFINE = 'refine'
 PROGRAM_PREDICT = 'predict'
 
+NOISE_MODE = ['ramp', 'hamming', 'noFilter']
+
 TOMOGRAMFOLDER = 'tomograms'
 DECONVFOLDER = 'deconv'
 SUBTOMOGRAMFOLDER = 'subtomograms'

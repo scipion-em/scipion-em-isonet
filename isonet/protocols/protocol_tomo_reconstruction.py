@@ -202,7 +202,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                       choices=['ramp', 'hamming', 'noFilter'],
                       important=True,
                       display=params.EnumParam.DISPLAY_COMBO,
-                      allowsNull=True,
+                      default=2,
                       label="Filter names",
                       help="Filter names when generating noise volumes, can be 'ramp', 'hamming' and 'noFilter'"
                       )
@@ -450,11 +450,11 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
 
         noise_mode = self.noise_mode.get()
         if noise_mode is not None:
-            args += ' --noise_mode %s' % noise_mode
+            args += ' --noise_mode %s' % NOISE_MODE[noise_mode]
 
         pretrained_model = self.pretrained_model.get()
         if pretrained_model is not None:
-            args += '--pretrained_model %s' % pretrained_model
+            args += ' --pretrained_model %s ' % pretrained_model
 
         batch_size = self.batch_size.get()
         if batch_size is None:
@@ -464,7 +464,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         if steps_per_epoch is None:
             steps_per_epoch = min(self.number_subtomos.get() * 6 / batch_size, 200)
 
-        args += '--batch_size %d --steps_per_epoch %d' % (batch_size, steps_per_epoch)
+        args += ' --batch_size %d --steps_per_epoch %d' % (batch_size, steps_per_epoch)
         Plugin.runIsoNet(self, Plugin.getProgram(PROGRAM_REFINE),
                          args=args)
 
@@ -475,7 +475,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         """
         if not os.path.exists(self.predictFolder):
             os.mkdir(self.predictFolder)
-        modelName = getTrinedModelName(self.epochs.get())
+        modelName = getTrinedModelName(self.iterations.get())
         modelPath = os.path.join(self.resultsFolder, modelName)
         args = '%s %s --gpuID %d --batch_size %d --output_dir %s ' \
                % (self.tomoStarFileName,
