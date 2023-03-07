@@ -135,7 +135,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                             'If this value is not set, the program will look for the parameter in the star file.'
                             'If this value is not set and not found in star file, the default value 50 will be used.')
 
-        form.addParam('z_crop', params.FloatParam, default=50,
+        form.addParam('z_crop', params.FloatParam, default=0.2,
                       condition="generateMask==%d" % True,
                       label="Z_crop",
                       help='If exclude the top and bottom regions of tomograms along z axis. '
