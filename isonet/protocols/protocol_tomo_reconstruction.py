@@ -150,7 +150,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         form.addParam('number_subtomos', params.IntParam, default=100,
                       label="Number of subtomograms to be extracted per tomogram",
                       help='Number of subtomograms to be extracted')
-        form.addParam('cube_size', params.IntParam, default=None,
+        form.addParam('cube_size', params.IntParam, default=8,
                       allowsNull=True,
                       label="Size of cubes",
                       help='Size of cubes for training, should be divisible by 8, eg. 32, 64. '
@@ -159,7 +159,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                            'And the cube_size should be divisible by 8. If this value isnt '
                            'set, cube_size is automatically determined as int(subtomo_size / 1.5 + 1)//16 * 16')
 
-        form.addParam('crop_size', params.IntParam, default=None,
+        form.addParam('crop_size', params.IntParam, default=24,
                       allowsNull=True,
                       label="Crop size",
                       help='The size of subtomogram, should be larger than the '
@@ -177,7 +177,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         form.addParam('epochs', params.IntParam, default=10,
                       label='Number of epoch',
                       help='Number of epoch for each iteraction')
-        form.addParam('batch_size', params.IntParam, default=1,
+        form.addParam('batch_size', params.IntParam, default=None,
                        label='Batch size',
                        allowsNull=True,
                        help='Size of the minibatch.If None, batch_size will be '
@@ -224,8 +224,12 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                        default=3,
                        label='Depth of UNet',
                        help='Depth of UNet.')
+        form.addParam('kernel', params.StringParam,
+                      default="3,3,3",
+                      label='Kernel for convolution',
+                      help='Kernel for convolution')
         form.addParam('filter_base', params.IntParam,
-                       default=3,
+                       default=64,
                        label='Filter base',
                        help='The base number of channels after convolution.')
         form.addParam('batch_normalization', params.BooleanParam,
@@ -233,7 +237,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                        label='Use batch normalization layer?',
                        help='Use Batch Normalization layer')
         form.addParam('pool', params.BooleanParam,
-                       default=True,
+                       default=False,
                        label='Use pooling layer?',
                        help='Use pooling layer instead of stride convolution layer')
         form.addParam('normalize_percentile', params.BooleanParam,
@@ -373,11 +377,12 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
 
         if not os.path.exists(self.maskPath):
             os.mkdir(self.maskPath)
-        args = '%s --mask_folder %s --patch_size %d --density_percentage %d --std_percentage %d' \
+        args = '%s --mask_folder %s --patch_size %d --density_percentage %d --std_percentage %d --z_crop %f' \
                % (self.tomoStarFileName, self.maskPath,
                   self.patch_size.get(),
                   self.density_percentage.get(),
-                  self.std_percentage.get())
+                  self.std_percentage.get(),
+                  self.z_crop.get())
 
         if self.inputSetOfCtfTomoSeries.get() is not None:
             args += ' --use_deconv_tomo True'
@@ -400,7 +405,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
 
         cube_size = self.cube_size.get()
         if cube_size is None:
-            cube_size = 2
+            cube_size = 8
             logging.info("Setting cube_size parameter to %d" % cube_size)
         args += '--cube_size %d ' % cube_size
 
@@ -427,14 +432,13 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
 
         isonet.py refine subtomo_star [--iterations] [--gpuID] [--preprocessing_ncpus] [--batch_size] [--steps_per_epoch] [--noise_start_iter] [--noise_level]...
         """
-        args = '%s --iterations %d --epochs %d --gpuID %d --preprocessing_ncpus %d --noise_level %s ' \
+        args = '%s --iterations %d --epochs %d --gpuID %s --preprocessing_ncpus %d --noise_level %s ' \
                '--noise_start_iter %s --drop_out %f --learning_rate %f ' \
-               '--convs_per_depth %d --unet_depth %d --filter_base %d --batch_normalization %d ' \
-               '--pool %d --normalize_percentile %d --result_dir %s ' \
+               '--convs_per_depth %d --unet_depth %d --filter_base %d --kernel %s --result_dir %s ' \
                % (self.subtomoStarFile,
                   self.iterations.get(),
                   self.epochs.get(),
-                  int(self.getGpuList()[0]),
+                  str(self.getGpuList())[1:-1].replace(' ', ''),
                   self.numberOfMpi.get(),
                   self.noise_level.get(),
                   self.noise_start_iter.get(),
@@ -443,18 +447,25 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                   self.convs_per_depth.get(),
                   self.unet_depth.get(),
                   self.filter_base.get(),
-                  self.batch_normalization.get(),
-                  self.pool.get(),
-                  self.normalize_percentile.get(),
+                  self.kernel.get(),
                   self.resultsFolder)
 
+        if self.pool.get() is True:
+            args += '--pool True '
+
+        if self.batch_normalization.get() is False:
+            args += '--batch_normalization False '
+
+        if self.normalize_percentile.get() is False:
+            args += '--normalize_percentile False '
+
         noise_mode = self.noise_mode.get()
-        if noise_mode is not None:
-            args += ' --noise_mode %s' % NOISE_MODE[noise_mode]
+        if noise_mode != 2:
+            args += '--noise_mode %s ' % NOISE_MODE[noise_mode]
 
         pretrained_model = self.pretrained_model.get()
         if pretrained_model is not None:
-            args += ' --pretrained_model %s ' % pretrained_model
+            args += '--pretrained_model %s ' % pretrained_model
 
         batch_size = self.batch_size.get()
         if batch_size is None:
@@ -477,20 +488,28 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
             os.mkdir(self.predictFolder)
         modelName = getTrinedModelName(self.iterations.get())
         modelPath = os.path.join(self.resultsFolder, modelName)
-        args = '%s %s --gpuID %d --batch_size %d --output_dir %s ' \
+        batch_size = self.batch_size.get()
+        if batch_size is None:
+            batch_size = max(2 * len(self.getGpuList()), 4)
+
+        args = '%s %s --gpuID %s --batch_size %d --output_dir %s ' \
                % (self.tomoStarFileName,
                   modelPath,
-                  int(self.getGpuList()[0]),
-                  self.batch_size.get(),
+                  str(self.getGpuList())[1:-1].replace(' ', ''),
+                  batch_size,
                   self.predictFolder)
 
         cube_size = self.cube_size.get()
-        if cube_size is not None:
-            args += '--cube_size %d ' % cube_size
+        if cube_size is None:
+            cube_size = 8
+            logging.info("Setting cube_size parameter to %d" % cube_size)
+        args += '--cube_size %d ' % cube_size
 
         crop_size = self.crop_size.get()
-        if crop_size is not None:
-            args += '--crop_size %d ' % crop_size
+        if crop_size is None:
+            crop_size = cube_size + 16
+            logging.info("Setting crop_size parameter to %d" % crop_size)
+        args += '--crop_size %d ' % crop_size
 
         tomo_idx = self.tomo_idx.get()
         if tomo_idx is not None:
@@ -522,7 +541,12 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
         self._defineOutputs(outputTomograms=tomoSet)
 
     def _validate(self):
-        return []
+        msg =[]
+        cube_size = self.cube_size.get()
+        if cube_size % 8 != 0:
+            msg.append("The size of cubes parameter(Extract subtomogram tab) "
+                       "must be a multiple of 8")
+        return msg
 
     # --------------------------- INFO functions -----------------------------------
     def _summary(self):
