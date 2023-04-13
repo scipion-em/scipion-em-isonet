@@ -23,7 +23,6 @@
 # *  e-mail address 'scipion@cnb.csic.es'
 # *
 # **************************************************************************
-import logging
 import os
 
 import pwem
