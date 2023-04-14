@@ -543,7 +543,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
     def _validate(self):
         msg =[]
         cube_size = self.cube_size.get()
-        if cube_size % 8 != 0:
+        if cube_size is not None and cube_size % 8 != 0:
             msg.append("The size of cubes parameter(Extract subtomogram tab) "
                        "must be a multiple of 8")
         return msg
