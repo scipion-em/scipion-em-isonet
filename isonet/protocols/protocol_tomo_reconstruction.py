@@ -94,12 +94,6 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                       label="Highpass filter",
                       help='Highpass filter for at very low frequency. We suggest to keep this default value.')
 
-        form.addParam('pixel_size', params.FloatParam, default=10,
-                       label="Pixel size (Å)",
-                       help='Pixel size in Anstroms. Usually you want to bin your tomograms to about 10Å pixel size.'
-                            'Too large or too small pixel sizes are not recommanded, since the target resolution '
-                            'on Z-axis of corrected tomograms should be about 30Å.')
-
         form.addParam('generateMask', params.BooleanParam, default=True,
                       label="Generate mask?",
                       help='Generate a mask that include sample area and exclude "empty" area of the tomogram. '
@@ -280,8 +274,10 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
             if not os.path.exists(tomoLnName):
                 os.link(tomofn, tomoLnName)
 
+        pixel_size = self.inputTomograms.get().getSamplingRate()
+
         args = '%s --output_star %s --pixel_size %f --defocus %f --number_subtomos %d' \
-               %(self.tomoPath, self.tomoStarFileName, self.pixel_size.get(), 0.0,
+               %(self.tomoPath, self.tomoStarFileName, pixel_size, 0.0,
                  self.number_subtomos.get())
 
         Plugin.runIsoNet(self, Plugin.getProgram(PROGRAM_PREPARE_STAR), args=args)
