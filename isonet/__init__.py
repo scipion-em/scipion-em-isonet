@@ -31,7 +31,7 @@ import pyworkflow.utils as pwutils
 from .constants import *
 from .utils import *
 
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 _logo = "icon.png"
 _references = ['Liu2021']
 
@@ -95,18 +95,14 @@ class Plugin(pwem.Plugin):
         cudaVersion = cls.guessCudaVersion(ISONET_CUDA_LIB)
         cudalib = utils.CudaLibs().getCudaLibraries(cudaVersion)
 
-        if cudalib[0]:
-            extrapkgs = cudalib[1]
-            tensorflow = extrapkgs[0]
-            pythonVersion = extrapkgs[4]
-            numpyVersion = extrapkgs[3]
-            extrapkgs = extrapkgs[1]
+        tensorflow = cudalib[0]
+        cudnn = cudalib[1]
+        pythonVersion = cudalib[4]
+        numpyVersion = cudalib[3]
 
-        else:
-            print(cudalib[1])
 
         installCmd = [cls.getCondaActivationCmd(),
-                      f'conda create -y -n {ENV_NAME} {pythonVersion} {extrapkgs} -c conda-forge -c anaconda && ',
+                      f'conda create -y -n {ENV_NAME} {pythonVersion} {cudnn} -c conda-forge -c anaconda && ',
                       f'conda activate {ENV_NAME} &&']
         installCmd.append(f'conda install -y scipy pyqt &&')
         installCmd.append(f'pip install {tensorflow} {numpyVersion} &&')
