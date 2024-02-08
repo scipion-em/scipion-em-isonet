@@ -30,8 +30,8 @@ setup(
     description='Scipion plugin isonet.',  # Required
     long_description=long_description,  # Optional
     url='https://github.com/scipion-em/scipion-em-isonet',  # Optional
-    author='you',  # Optional
-    author_email='you@yourinstitution.email',  # Optional
+    author='Y.C. Fonseca Reyna && J.L. Vilas',  # Optional
+    author_email='cfonseca@cnb.csic.es',  # Optional
     keywords='scipion cryoem imageprocessing scipion-3.0',  # Optional
     packages=find_packages(),
     install_requires=[requirements],

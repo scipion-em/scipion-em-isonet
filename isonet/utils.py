@@ -12,7 +12,9 @@ except ImportError:
 class CudaLibs:
     def __init__(self):
         self.cudaTable = dict()
+        self.latestVersion = '11.8'
         self.fillCudaTable()
+
 
     def fillCudaTable(self):
         # FIXME We need to specify the correct combinations in several case
@@ -23,6 +25,7 @@ class CudaLibs:
         self.cudaTable['11.2'] = [('tensorflow==2.5.0', 'cudnn=8.1', 'gcc=7.3.1', 'numpy==1.19.5', 'python=3.7')]
         self.cudaTable['11.4'] = self.cudaTable['11.2']
         self.cudaTable['11.6'] = self.cudaTable['11.2']
+        self.cudaTable[self.latestVersion] = self.cudaTable['11.2']
 
     def runShell(self, cmd, allow_non_zero=False, stderr=None):
         if stderr is None:
@@ -46,6 +49,7 @@ class CudaLibs:
         return None
 
     def getCudaLibraries(self, cudaVersion):
+        msg = []
         matches = self.cudaTable[str(cudaVersion)]
         if len(matches):
             gccVersion = self.getGccCcompiler()
@@ -53,13 +57,18 @@ class CudaLibs:
                 for match in matches:
                     gccMatch = match[2].split('=')[1]
                     if parse_version(gccMatch).major <= parse_version(gccVersion).major:
-                        return True, match
-            gccVersions=""
+                        return match
+            gccVersions = ""
             for match in matches:
                 gccVersions += match[2] + " "
 
-            return False, "For cuda %s you need to install the followings gcc " \
-                          "versions: %s" % (str(cudaVersion), gccVersions)
+            msg.append("For cuda %s you need to install the followings gcc versions: %s\n" % (str(cudaVersion), gccVersions))
+
         else:
-            return False, "There are no available versions of tensorflow " \
-                          "for the cuda-%s" % str(cudaVersion)
+            msg.append("There are no defined versions of tensorflow for the cuda-%s in this plugin.\n" % str(cudaVersion))
+
+        msg.append("We will install the latest version defined. We do not guarantee the correct functioning of the "
+                   "plugin. In case of any problem, please contact the development team.")
+        if msg:
+            print(msg[0], msg[1])
+            return matches[self.latestVersion]
