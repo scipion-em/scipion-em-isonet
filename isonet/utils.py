@@ -45,7 +45,7 @@ class CudaLibs:
         if gcc_env is not None:
             gcc_version = self.runShell([gcc_env, '--version']).split()
             if gcc_version[0] in ('gcc', 'g++'):
-                return gcc_version[3]
+                return gcc_version[2]
         return None
 
     def getCudaLibraries(self, cudaVersion):
