@@ -1,4 +1,3 @@
-import logging
 import subprocess
 import sys
 from pkg_resources import parse_version
@@ -43,9 +42,8 @@ class CudaLibs:
     def getGccCcompiler(self):
         gcc_env = which('gcc')
         if gcc_env is not None:
-            gcc_version = self.runShell([gcc_env, '--version']).split()
-            if gcc_version[0] in ('gcc', 'g++'):
-                return gcc_version[3]
+            gcc_version = self.runShell([gcc_env, '-dumpversion']).split(' ')
+            return gcc_version[-1]
         return None
 
     def getCudaLibraries(self, cudaVersion):
