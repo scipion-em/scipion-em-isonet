@@ -39,10 +39,12 @@ _references = ['Liu2021']
 class Plugin(pwem.Plugin):
     _homeVar = ISONET_HOME
     _pathVars = [ISONET_HOME]
+    _vars = {}
 
     @classmethod
     def _defineVariables(cls):
         cls._defineVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
+        cls._defineVar(ISONET_ACTIVATION_CMD, 'conda activate %s' % (getIsoNetEnvName(ISONET_VERSION)))
         cls._defineEmVar(ISONET_HOME, 'isonet-' + ISONET_VERSION)
 
     @classmethod
@@ -75,8 +77,9 @@ class Plugin(pwem.Plugin):
     @classmethod
     def runIsoNet(cls, protocol, program, args, cwd=None, useCpu=False):
         """ Run IsonNet command from a given protocol. """
+        print(cls.getVar(ISONET_ACTIVATION_CMD))
         fullProgram = '%s %s && %s' % (cls.getCondaActivationCmd(),
-                                       cls.getIsoNetActivationCmd(),
+                                        cls.getVar(ISONET_ACTIVATION_CMD),
                                        program)
 
         protocol.runJob(fullProgram, args, env=cls.getEnviron(), cwd=cwd,

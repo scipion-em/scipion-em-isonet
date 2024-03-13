@@ -38,7 +38,7 @@ def getTrinedModelName(iter):
 
 # IsoNet environment variables
 ISONET_VERSION = '0.2.1'  # This is our made up version
-ISONET_ACTIVATION_CMD = 'conda activate %s' % (getIsoNetEnvName(ISONET_VERSION))
+ISONET_ACTIVATION_CMD = 'ISONET_ACTIVATION_CMD'
 
 ISONET_CUDA_LIB = 'ISONET_CUDA_LIB'
 ISONET_HOME = 'ISONET_HOME'
