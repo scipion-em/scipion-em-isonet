@@ -89,8 +89,7 @@ class Plugin(pwem.Plugin):
     def addIsonetPackage(cls, env):
         ISONET_INSTALLED = f"isonet_{ISONET_VERSION}_installed"
         ENV_NAME = getIsoNetEnvName(ISONET_VERSION)
-        cudaVersion = cls.guessCudaVersion(ISONET_CUDA_LIB)
-        cudalib = utils.CudaLibs().getCudaLibraries(cudaVersion)
+        cudalib = utils.CudaLibs().getCudaLibraries('11.2')
 
         tensorflow = cudalib[0]
         cudnn = cudalib[1]
