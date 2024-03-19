@@ -506,23 +506,29 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                          args=args)
 
     def createOutputStep(self):
-        samplingRate = self.inputTomograms.get().getSamplingRate()
-        tomoSet = self._createSetOfTomograms()
-        tomoSet.setSamplingRate(samplingRate)
         tomograms = os.listdir(self.predictFolder)
 
-        for fileName in tomograms:
-            tomo = Tomogram()
-            tomo.setSamplingRate(samplingRate)
-            tomoId = fileName
-            tomo.cleanObjId()
-            tomo.setTsId(tomoId)
-            location = os.path.join(self.predictFolder, fileName)
-            tomo.setLocation(location)
-            tomo.setOrigin()
-            tomoSet.append(tomo)
+        if tomograms:
+            samplingRate = self.inputTomograms.get().getSamplingRate()
+            tomoSet = self._createSetOfTomograms()
+            tomoSet.setSamplingRate(samplingRate)
 
-        self._defineOutputs(outputTomograms=tomoSet)
+
+            for fileName in tomograms:
+                tomo = Tomogram()
+                tomo.setSamplingRate(samplingRate)
+                tomoId = fileName
+                tomo.cleanObjId()
+                tomo.setTsId(tomoId)
+                location = os.path.join(self.predictFolder, fileName)
+                tomo.setLocation(location)
+                tomo.setOrigin()
+                tomoSet.append(tomo)
+
+            self._defineOutputs(outputTomograms=tomoSet)
+        else:
+            raise Exception('There was an error during isoNet execution. '
+                            'Check the error log and please do not hesitate to contact us.')
 
     def _validate(self):
         msg =[]

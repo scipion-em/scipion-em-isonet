@@ -20,6 +20,17 @@ Protocols
 
 **Latest plugin version**
 ==========================
+
+**v3.0.2**
+-----------
+* **fixed**     :  Validated gcc version
+* **fixed**     :  Fixed an error related with cuda lib
+
+
+**v3.0.1**
+-----------
+* **new**     :  Isotropic Reconstruction
+
 **v3.0.0**
 -----------
 * **new**     :  First plugin version

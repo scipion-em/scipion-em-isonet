@@ -31,7 +31,7 @@ import pyworkflow.utils as pwutils
 from .constants import *
 from .utils import *
 
-__version__ = "3.0.1"
+__version__ = "3.0.2"
 _logo = "icon.png"
 _references = ['Liu2021']
 
@@ -42,19 +42,16 @@ class Plugin(pwem.Plugin):
 
     @classmethod
     def _defineVariables(cls):
-        cls._defineVar(ISONET_CUDA_LIB, pwem.Config.CUDA_LIB)
         cls._defineEmVar(ISONET_HOME, 'isonet-' + ISONET_VERSION)
 
     @classmethod
     def getEnviron(cls):
         """ Set up the environment variables needed to launch IsoNet. """
         environ = pwutils.Environ(os.environ)
-        # Add required disperse path to PATH and pyto path to PYTHONPATH
+        # Add a required disperse path to PATH and python path to PYTHONPATH
         environ.update({'PATH': os.path.join(cls.getHome(), 'IsoNet', 'bin'),
                         'PYTHONPATH':  cls.getHome()
-                        },position=pwutils.Environ.END)
-        cudaLib = cls.getVar(ISONET_CUDA_LIB)
-        environ.addLibrary(cudaLib)
+                        }, position=pwutils.Environ.END)
         return environ
 
     @classmethod
