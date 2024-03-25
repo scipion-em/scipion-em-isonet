@@ -272,7 +272,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
             tomoName = tomo.getTsId()
             tomoLnName = os.path.join(self.tomoPath, tomoName + '.mrc')
             if not os.path.exists(tomoLnName):
-                os.link(tomofn, tomoLnName)
+                os.symlink(tomofn, tomoLnName)
 
         pixel_size = self.inputTomograms.get().getSamplingRate()
 
