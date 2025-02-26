@@ -128,11 +128,11 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                       label="Tomo index",
                       help=' If this value is set, process only the tomograms listed in this index. e.g. 1,2,4 or 5-10,15,16')
 
-        form.addSection("Extract subtomograms")
+        form.addSection("Extract training subtomograms")
         form.addParam('number_subtomos', params.IntParam, default=100,
                       label="Number of subtomograms to be extracted per tomogram",
                       help='Number of subtomograms to be extracted')
-        form.addParam('cube_size', params.IntParam, default=8,
+        form.addParam('cube_size', params.IntParam, default=64,
                       allowsNull=True,
                       label="Size of cubes",
                       help='Size of cubes for training, should be divisible by 8, eg. 32, 64. '
@@ -141,7 +141,7 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                            'And the cube_size should be divisible by 8. If this value isnt '
                            'set, cube_size is automatically determined as int(subtomo_size / 1.5 + 1)//16 * 16')
 
-        form.addParam('crop_size', params.IntParam, default=24,
+        form.addParam('crop_size', params.IntParam, default=80,
                       allowsNull=True,
                       label="Crop size",
                       help='The size of subtomogram, should be larger than the '
@@ -188,6 +188,18 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                       label="Filter names",
                       help="Filter names when generating noise volumes, can be 'ramp', 'hamming' and 'noFilter'"
                       )
+
+        form.addSection("Prediction settings")
+        form.addParam('cube_size_pred', params.IntParam, default=80,
+                      allowsNull=True,
+                      label="Size of tiles during prediction",
+                      help='Default is 80, should be multiple of 4. If you run out of memory errors try reducing it.'
+                           ' and reducing the crop size')
+        form.addParam('crop_size_pred', params.IntParam, default=128,
+                      allowsNull=True,
+                      label="Crop size",
+                      help='The size of subtomogram, should be larger than the '
+                           'cube_size The default value is 128. If you run out of memory errors try reducing it.')
 
         form.addSection("Network settings")
         form.addParam('drop_out', params.FloatParam,
@@ -483,13 +495,13 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
                   batch_size,
                   self.predictFolder)
 
-        cube_size = self.cube_size.get()
+        cube_size = self.cube_size_pred.get()
         if cube_size is None:
             cube_size = 8
             logging.info("Setting cube_size parameter to %d" % cube_size)
         args += '--cube_size %d ' % cube_size
 
-        crop_size = self.crop_size.get()
+        crop_size = self.crop_size_pred.get()
         if crop_size is None:
             crop_size = cube_size + 16
             logging.info("Setting crop_size parameter to %d" % crop_size)
