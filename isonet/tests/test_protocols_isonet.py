@@ -30,7 +30,6 @@ import os
 import isonet.protocols
 
 from pyworkflow.tests import setupTestProject, BaseTest, DataSet
-from pwem.emlib.image import ImageHandler
 import tomo.protocols
 import imod.protocols
 
@@ -38,9 +37,6 @@ DataSet(name='novaCtfTestData',
         folder='novaCtfTestData',
         files={
             'tsCtf': 'tomo1_bin4.mrc'})
-
-from ..protocols import *
-
 
 
 class TestIsoNetCtfBase(BaseTest):
@@ -73,7 +69,7 @@ class TestIsoNetCtfBase(BaseTest):
     def _runImodCTFEstimation(cls, inputSoTS, expectedDefocusOrigin, angleRange,
                           expectedDefocusValue, searchAstigmatism):
         cls.protCTFEstimation = cls.newProtocol(imod.protocols.ProtImodAutomaticCtfEstimation,
-                                                inputSet=inputSoTS,
+                                                inputSetOfTiltSeries=inputSoTS,
                                                 expectedDefocusOrigin=expectedDefocusOrigin,
                                                 expectedDefocusValue=expectedDefocusValue,
                                                 angleRange=angleRange,
@@ -99,7 +95,11 @@ class TestIsoNetCtfBase(BaseTest):
             isonet.protocols.ProtIsoNetTomoReconstruction,
             inputTomograms=inputSetOfTomograms,
             inputSetOfCtfTomoSeries=inputSetOfCtfEtimation,
-            iterations=1
+            iterations=1,
+            cube_size=8,
+            crop_size=24,
+            cube_size_pred=8,
+            crop_size_pred=24
             )
         cls.protIsoNetReconstruction.setObjLabel(label)
         cls.launchProtocol(cls.protIsoNetReconstruction)
@@ -136,8 +136,6 @@ class TestIsoNetReconstructionWorkflow(TestIsoNetCtfBase):
             searchAstigmatism=0)
 
         cls.protImodReconstruction = cls._runImodCTFReconstruction(cls.protImportTS.outputTiltSeries)
-
-
 
     def test_tomoReconstructionOutput(self):
         self.protIsoNetReconstruction = self._runIsoNetReconstruction(self.protImodReconstruction.Tomograms,
