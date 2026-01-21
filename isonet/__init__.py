@@ -27,6 +27,7 @@ import os
 
 import pwem
 import pyworkflow.utils as pwutils
+from pyworkflow import TOMO
 
 from .constants import *
 from .utils import *
@@ -39,6 +40,7 @@ _references = ['Liu2021']
 class Plugin(pwem.Plugin):
     _homeVar = ISONET_HOME
     _pathVars = [ISONET_HOME]
+    _processingField = [TOMO]
 
     @classmethod
     def _defineVariables(cls):
