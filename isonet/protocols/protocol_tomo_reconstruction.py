@@ -45,6 +45,57 @@ class ProtIsoNetTomoReconstruction(EMProtocol, ProtTomoBase):
     """
      Isotropic Reconstruction of Electron Tomograms with Deep Learning
     """
+    """
+        IsoNet Tomogram Reconstruction (ProtIsoNetTomoReconstruction) — User Manual
+            Overview
+
+            The IsoNet Tomogram Reconstruction protocol performs isotropic
+            restoration of electron tomograms using deep learning techniques.
+            Its main objective is to compensate for the missing wedge effect
+            and improve tomogram quality for visualization and downstream
+            cryo-electron tomography analysis.
+
+            Inputs and Workflow
+
+            The protocol requires a set of input tomograms and optionally a
+            set of CTF tomogram series for deconvolution. The workflow consists
+            of project preparation, optional CTF deconvolution, automatic mask
+            generation, subtomogram extraction, neural network training, and
+            tomogram prediction.
+
+            CTF Deconvolution and Masking
+
+            When CTF information is provided, the protocol performs
+            deconvolution to improve low-frequency contrast and enhance
+            reconstruction quality. Automatic masking can also be enabled
+            to exclude empty regions and focus training on biologically
+            relevant areas of the tomogram.
+
+            Neural Network Training
+
+            The protocol trains a configurable U-Net–based neural network
+            using extracted subtomograms. Users can adjust parameters such
+            as training iterations, epochs, batch size, learning rate,
+            dropout rate, convolution depth, and noise augmentation settings.
+            GPU acceleration and multi-GPU execution are supported.
+
+            Prediction and Outputs
+
+            After training, the learned model is applied to restore the
+            tomograms and generate isotropic reconstructions with reduced
+            missing wedge artifacts. The output consists of reconstructed
+            tomograms that preserve the original sampling information and
+            can be directly used for visualization, segmentation, or
+            subtomogram analysis.
+
+            Final Perspective
+
+            IsoNet reconstruction improves tomogram interpretability by
+            combining deep learning restoration, denoising, and missing
+            wedge compensation. Proper parameter selection and balanced
+            training are important to obtain biologically meaningful and
+            reliable reconstructions.
+        """
     _label = 'tomo reconstruction'
     _devStatus = BETA
 
